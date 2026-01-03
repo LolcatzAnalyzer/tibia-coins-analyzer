@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Tibia Coins Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #e5e7eb;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .chart-container {
+            width: 90%;
+            max-width: 900px;
+            margin: auto;
+            background: #020617;
+            padding: 20px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>📊 Tibia Coins – Market Dashboard</h1>
+
+<div class="chart-container">
+    <canvas id="priceChart"></canvas>
+</div>
+
+<script>
+fetch('/api/prices')
+    .then(res => res.json())
+    .then(data => {
+        const labels = data.map(p => p.timestamp);
+        const prices = data.map(p => p.price);
+
+        new Chart(document.getElementById('priceChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'TC Price',
+                    data: prices,
+                    borderColor: 'lime',
+                    tension: 0.3
+                }]
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
