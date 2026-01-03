@@ -34,3 +34,18 @@ def insert_price(world, price):
 
     conn.commit()
     conn.close()
+
+def get_last_prices(limit=20):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT world, price, timestamp
+        FROM prices
+        ORDER BY timestamp DESC
+        LIMIT ?
+    """, (limit,))
+
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
