@@ -1,19 +1,29 @@
-﻿from flask import Flask
-from apscheduler.schedulers.background import BackgroundScheduler
-from database import init_db
-from scheduler import simulate
+from flask import Flask, render_template, jsonify
+from datetime import datetime, timedelta
+import random
 
 app = Flask(__name__)
 
-@app.route('/')
-def home():
-    return '<h1>Tibia Coins Analyzer</h1><p>System działa. Alerty aktywne.</p>'
+# --- DASHBOARD ---
+@app.route("/")
+def dashboard():
+    return render_template("dashboard.html")
 
-if __name__ == '__main__':
-    init_db()
+# --- API: TEMP DATA ---
+@app.route("/api/prices")
+def api_prices():
+    now = datetime.now()
+    prices = []
 
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(simulate, 'interval', minutes=5)
-    scheduler.start()
+    base_price = 36000
 
-    app.run(host='0.0.0.0', port=5000)
+    for i in range(30):
+        prices.append({
+            "timestamp": (now - timedelta(minutes=30 - i)).strftime("%H:%M"),
+            "price": base_price + random.randint(-300, 300)
+        })
+
+    return jsonify(prices)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
