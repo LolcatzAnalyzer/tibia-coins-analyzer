@@ -1,17 +1,22 @@
-﻿from database import get_last_prices
-from alerts import send_buy, send_sell
+from database import get_last_prices
+from alerts import send_buy_alert, send_sell_alert
 
-def analyze(world):
-    prices = get_last_prices(world)
+WINDOW = 10
 
-    if len(prices) < 5:
+def analyze():
+    prices = get_last_prices(WINDOW)
+
+    if len(prices) < WINDOW:
         return
 
     avg = sum(prices) / len(prices)
-    current = prices[0]
+    current = prices[-1]
+    prev = prices[-2]
 
-    if current < avg * 0.95:
-        send_buy(world, current)
+    # BUY
+    if current < avg * 0.97 and current > prev:
+        send_buy_alert(current, avg)
 
-    if current > avg * 1.05:
-        send_sell(world, current)
+    # SELL
+    if current > avg * 1.03 and current < prev:
+        send_sell_alert(current, avg)
