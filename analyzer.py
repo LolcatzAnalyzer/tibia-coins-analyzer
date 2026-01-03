@@ -14,9 +14,9 @@ def analyze():
     prev = prices[-2]
 
     # BUY
-    if current < avg * 0.97 and current > prev:
+    if current < avg * 0.99:
         send_buy_alert(current, avg)
 
     # SELL
-    if current > avg * 1.03 and current < prev:
+    if current > avg * 1.01:
         send_sell_alert(current, avg)
