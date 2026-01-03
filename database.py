@@ -1,9 +1,14 @@
 import sqlite3
 import os
 
-def init_db():
+DB_PATH = "data/prices.db"
+
+def get_connection():
     os.makedirs("data", exist_ok=True)
-    conn = sqlite3.connect("data/prices.db")
+    return sqlite3.connect(DB_PATH)
+
+def init_db():
+    conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -14,6 +19,18 @@ def init_db():
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
+    conn.commit()
+    conn.close()
+
+def insert_price(world, price):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "INSERT INTO prices (world, price) VALUES (?, ?)",
+        (world, price)
+    )
 
     conn.commit()
     conn.close()
