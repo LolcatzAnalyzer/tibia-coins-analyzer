@@ -1,22 +1,10 @@
 import requests
-from bs4 import BeautifulSoup
+from datetime import datetime
+import random
 
 def fetch_tc_price():
-    url = "https://www.tibia.com/charactertrade/?subtopic=currentcharactertrades"
-    headers = {"User-Agent": "Mozilla/5.0"}
-    r = requests.get(url, headers=headers, timeout=10)
+    # TEMP: symulacja realnej ceny (na razie)
+    price = random.randint(35000, 37000)
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    soup = BeautifulSoup(r.text, "html.parser")
-
-    prices = []
-    for cell in soup.select("td.Right"):
-        text = cell.get_text(strip=True).replace(",", "")
-        if text.isdigit():
-            value = int(text)
-            if 20000 < value < 100000:
-                prices.append(value)
-
-    if not prices:
-        raise ValueError("No TC prices found")
-
-    return sum(prices) // len(prices)
+    return timestamp, price
