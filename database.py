@@ -29,3 +29,14 @@ def get_prices(limit=100):
         {"timestamp": row["timestamp"], "price": row["price"]}
         for row in reversed(rows)
     ]
+def insert_price(timestamp, price):
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO prices (timestamp, price)
+        VALUES (?, ?)
+    """, (timestamp, price))
+
+    conn.commit()
+    conn.close()
