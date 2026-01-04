@@ -1,8 +1,31 @@
-﻿import requests
-from config import DISCORD_WEBHOOK_BUY, DISCORD_WEBHOOK_SELL
+import os
+import requests
 
-def send_buy(world, price):
-    requests.post(DISCORD_WEBHOOK_BUY, json={'content': f'🟢 BUY ALERT | {world} | {price} TC'})
+def send_buy_alert(price, reason):
+    webhook = os.getenv("DISCORD_WEBHOOK_BUY")
 
-def send_sell(world, price):
-    requests.post(DISCORD_WEBHOOK_SELL, json={'content': f'🔴 SELL ALERT | {world} | {price} TC'})
+    if not webhook:
+        print("❌ BUY webhook not set")
+        return
+
+    data = {
+        "content": f"🟢 **BUY SIGNAL**\nCena: {price}\nPowód: {reason}"
+    }
+
+    r = requests.post(webhook, json=data)
+    print("BUY alert status:", r.status_code)
+
+
+def send_sell_alert(price, reason):
+    webhook = os.getenv("DISCORD_WEBHOOK_SELL")
+
+    if not webhook:
+        print("❌ SELL webhook not set")
+        return
+
+    data = {
+        "content": f"🔴 **SELL SIGNAL**\nCena: {price}\nPowód: {reason}"
+    }
+
+    r = requests.post(webhook, json=data)
+    print("SELL alert status:", r.status_code)
