@@ -2,58 +2,35 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Tibia Coins Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Tibia Coins Analyzer</title>
     <style>
         body {
-            background-color: #0f172a;
-            color: #e5e7eb;
             font-family: Arial, sans-serif;
-            margin: 0;
+            background: #0f172a;
+            color: #e5e7eb;
             padding: 20px;
         }
         h1 {
-            text-align: center;
+            color: #38bdf8;
         }
-        .chart-container {
-            width: 90%;
-            max-width: 900px;
-            margin: auto;
+        .box {
             background: #020617;
-            padding: 20px;
-            border-radius: 10px;
+            padding: 16px;
+            border-radius: 8px;
+            max-width: 600px;
         }
     </style>
 </head>
 <body>
+    <h1>📊 Tibia Coins Analyzer</h1>
 
-<h1>📊 Tibia Coins – Market Dashboard</h1>
-
-<div class="chart-container">
-    <canvas id="priceChart"></canvas>
-</div>
-
-<script>
-fetch('/api/prices')
-    .then(res => res.json())
-    .then(data => {
-        const labels = data.map(p => p.timestamp);
-        const prices = data.map(p => p.price);
-
-        new Chart(document.getElementById('priceChart'), {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'TC Price',
-                    data: prices,
-                    borderColor: 'lime',
-                    tension: 0.3
-                }]
-            }
-        });
-    });
-</script>
-
+    <div class="box">
+        <p>Status: <strong>backend działa ✅</strong></p>
+        <p>API:</p>
+        <ul>
+            <li><a href="/api/prices" target="_blank">/api/prices</a></li>
+            <li><a href="/api/fetch" target="_blank">/api/fetch</a></li>
+        </ul>
+    </div>
 </body>
 </html>
