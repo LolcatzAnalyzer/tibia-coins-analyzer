@@ -13,3 +13,11 @@ def simulate():
         except Exception as e:
             print("Scheduler error:", e)
             time.sleep(60)
+            from alerts import send_buy_alert
+
+send_buy_alert(
+    price=99999,
+    avg=88888,
+    diff=-9.99
+)
+
