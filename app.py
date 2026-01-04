@@ -1,7 +1,6 @@
 from flask import Flask, render_template, jsonify
-from datetime import datetime
 from fetcher import fetch_tc_price
-from database import get_prices
+from database import get_prices, insert_price
 
 app = Flask(__name__)
 
@@ -13,6 +12,12 @@ def dashboard():
 def api_prices():
     prices = get_prices(limit=100)
     return jsonify(prices)
+
+@app.route("/api/fetch")
+def fetch_price():
+    timestamp, price = fetch_tc_price()
+    insert_price(timestamp, price)
+    return {"status": "ok", "price": price}
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
