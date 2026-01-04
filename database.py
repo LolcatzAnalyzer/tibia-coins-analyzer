@@ -1,47 +1,52 @@
 import sqlite3
-import os
+from datetime import datetime
 
-DB_PATH = "data/prices.db"
+DB_NAME = "prices.db"
 
-def get_connection():
-    os.makedirs("data", exist_ok=True)
-    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
-    return conn
+def get_conn():
+    return sqlite3.connect(DB_NAME)
 
 def init_db():
-    conn = get_connection()
+    conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS prices (
+        CREATE TABLE IF NOT EXISTS world_prices (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp TEXT NOT NULL,
-            price INTEGER NOT NULL
+            world TEXT,
+            buy INTEGER,
+            sell INTEGER,
+            timestamp TEXT
         )
     """)
     conn.commit()
     conn.close()
 
-def insert_price(timestamp, price):
-    conn = get_connection()
+def insert_world_price(world, buy, sell):
+    conn = get_conn()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO prices (timestamp, price) VALUES (?, ?)",
-        (timestamp, price)
+        "INSERT INTO world_prices (world, buy, sell, timestamp) VALUES (?, ?, ?, ?)",
+        (world, buy, sell, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     )
     conn.commit()
     conn.close()
 
-def get_prices(limit=100):
-    conn = get_connection()
+def get_latest_world_prices():
+    conn = get_conn()
     cur = conn.cursor()
-    cur.execute(
-        "SELECT timestamp, price FROM prices ORDER BY id DESC LIMIT ?",
-        (limit,)
-    )
+    cur.execute("""
+        SELECT world, buy, sell
+        FROM world_prices
+        WHERE id IN (
+            SELECT MAX(id)
+            FROM world_prices
+            GROUP BY world
+        )
+    """)
     rows = cur.fetchall()
     conn.close()
 
     return [
-        {"timestamp": ts, "price": price}
-        for ts, price in reversed(rows)
+        {"world": r[0], "buy": r[1], "sell": r[2]}
+        for r in rows
     ]
