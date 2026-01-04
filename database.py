@@ -1,51 +1,31 @@
 import sqlite3
-import os
 
-DB_PATH = "data/prices.db"
+DB_PATH = "prices.db"
 
-def get_connection():
-    os.makedirs("data", exist_ok=True)
-    return sqlite3.connect(DB_PATH)
+def get_prices(limit=100):
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
 
-def init_db():
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("""
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS prices (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            world TEXT,
-            price INTEGER,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            timestamp TEXT,
+            price INTEGER
         )
     """)
 
-    conn.commit()
-    conn.close()
-
-def insert_price(world, price):
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute(
-        "INSERT INTO prices (world, price) VALUES (?, ?)",
-        (world, price)
-    )
-
-    conn.commit()
-    conn.close()
-
-def get_last_prices(limit=20):
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT world, price, timestamp
+    cur.execute("""
+        SELECT timestamp, price
         FROM prices
-        ORDER BY timestamp DESC
+        ORDER BY id DESC
         LIMIT ?
     """, (limit,))
 
-    rows = cursor.fetchall()
+    rows = cur.fetchall()
     conn.close()
-    return rows
+
+    return [
+        {"timestamp": row["timestamp"], "price": row["price"]}
+        for row in reversed(rows)
+    ]
