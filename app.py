@@ -26,3 +26,10 @@ send_buy_alert(
 if __name__ == "__main__":
     simulate()  # uruchamia scheduler (fetch + analiza)
     app.run(host="0.0.0.0", port=5000)
+    from alerts import send_buy_alert
+
+send_buy_alert(
+    price=12345,
+    reason="START TEST – jeśli to widzisz, webhook działa"
+)
+
