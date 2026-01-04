@@ -1,22 +1,27 @@
 from database import get_last_prices
-from alerts import send_buy_alert, send_sell_alert
 
-WINDOW = 10
+LAST_SIGNAL = None
 
 def analyze():
-    prices = get_last_prices(WINDOW)
+    global LAST_SIGNAL
 
-    if len(prices) < WINDOW:
-        return
+    prices = get_last_prices(10)
+    if len(prices) < 10:
+        return None
 
     avg = sum(prices) / len(prices)
     current = prices[-1]
-    prev = prices[-2]
 
-    # BUY
-    if current < avg * 0.99:
-        send_buy_alert(current, avg)
+    diff = (current - avg) / avg * 100
 
-    # SELL
-    if current > avg * 1.01:
-        send_sell_alert(current, avg)
+    print(f"AVG={avg:.2f} CURRENT={current} DIFF={diff:.2f}%")
+
+    if diff <= -1.0 and LAST_SIGNAL != "BUY":
+        LAST_SIGNAL = "BUY"
+        return "BUY"
+
+    if diff >= 1.0 and LAST_SIGNAL != "SELL":
+        LAST_SIGNAL = "SELL"
+        return "SELL"
+
+    return None
