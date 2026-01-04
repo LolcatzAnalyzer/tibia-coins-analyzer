@@ -10,27 +10,81 @@
             color: #e5e7eb;
             padding: 20px;
         }
+
         h1 {
             color: #38bdf8;
+            margin-bottom: 20px;
         }
-        .box {
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            max-width: 900px;
+        }
+
+        .card {
             background: #020617;
             padding: 16px;
-            border-radius: 8px;
-            max-width: 600px;
+            border-radius: 10px;
+            border: 1px solid #1e293b;
+        }
+
+        .world {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #7dd3fc;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin: 6px 0;
+        }
+
+        .buy {
+            color: #4ade80;
+        }
+
+        .sell {
+            color: #f87171;
         }
     </style>
 </head>
 <body>
-    <h1>📊 Tibia Coins Analyzer</h1>
 
-    <div class="box">
-        <p>Status: <strong>backend działa ✅</strong></p>
-        <p>API:</p>
-        <ul>
-            <li><a href="/api/prices" target="_blank">/api/prices</a></li>
-            <li><a href="/api/fetch" target="_blank">/api/fetch</a></li>
-        </ul>
-    </div>
+<h1>📊 Tibia Coins — Buy / Sell</h1>
+
+<div class="grid" id="worlds"></div>
+
+<script>
+    // MOCK DATA — za chwilę podmienimy na backend
+    const data = [
+        { world: "Secura", buy: 35200, sell: 35800 },
+        { world: "Bona", buy: 34900, sell: 35400 },
+        { world: "Refugia", buy: 34600, sell: 35100 }
+    ];
+
+    const container = document.getElementById("worlds");
+
+    data.forEach(w => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+            <div class="world">${w.world}</div>
+            <div class="row buy">
+                <span>BUY</span>
+                <span>${w.buy.toLocaleString()} TC</span>
+            </div>
+            <div class="row sell">
+                <span>SELL</span>
+                <span>${w.sell.toLocaleString()} TC</span>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+</script>
+
 </body>
 </html>
