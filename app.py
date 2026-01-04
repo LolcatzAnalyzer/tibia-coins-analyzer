@@ -1,8 +1,11 @@
 from flask import Flask, render_template, jsonify
 from fetcher import fetch_tc_price
-from database import get_prices, insert_price
+from database import get_prices, insert_price, init_db
 
 app = Flask(__name__)
+
+# ⬇️ TO JEST KLUCZOWE
+init_db()
 
 @app.route("/")
 def dashboard():
