@@ -21,10 +21,9 @@ def simulate():
             print("Scheduler error:", e)
             time.sleep(60)
             from alerts import send_buy_alert
-
 send_buy_alert(
     price=99999,
-    avg=88888,
-    diff=-9.99
+    reason="TEST BUY – jeśli to widzisz, webhook działa"
 )
+
 
