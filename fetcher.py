@@ -1,50 +1,22 @@
 import requests
-from bs4 import BeautifulSoup
-from datetime import datetime
 
 WORLDS = ["Secura", "Bona", "Refugia"]
-BASE_URL = "https://tibiatrade.gg/coins"
 
-
-def fetch_world_prices():
-    """
-    Zwraca listę:
-    [
-      {
-        "timestamp": "...",
-        "world": "Secura",
-        "buy": 35200,
-        "sell": 36100
-      },
-      ...
-    ]
-    """
-    response = requests.get(BASE_URL, timeout=15)
-    response.raise_for_status()
-
-    soup = BeautifulSoup(response.text, "html.parser")
-    rows = soup.select("table tbody tr")
-
-    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+def fetch_world_tc_prices():
     results = []
 
-    for row in rows:
-        cols = [c.get_text(strip=True) for c in row.find_all("td")]
-        if len(cols) < 4:
-            continue
+    for world in WORLDS:
+        url = f"https://api.tibiadata.com/v4/world/{world}"
+        r = requests.get(url, timeout=10)
+        data = r.json()
 
-        world = cols[0]
-        if world not in WORLDS:
-            continue
+        offers = data["world"]["market"]["offers"]
+        tc_offers = [o for o in offers if o["item"] == "Tibia Coin"]
 
-        try:
-            buy = int(cols[1].replace(",", ""))
-            sell = int(cols[2].replace(",", ""))
-        except ValueError:
-            continue
+        buy = max((o["price"] for o in tc_offers if o["type"] == "buy"), default=None)
+        sell = min((o["price"] for o in tc_offers if o["type"] == "sell"), default=None)
 
         results.append({
-            "timestamp": timestamp,
             "world": world,
             "buy": buy,
             "sell": sell
