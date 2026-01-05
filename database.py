@@ -1,52 +1,72 @@
 import sqlite3
-from datetime import datetime
+from pathlib import Path
 
-DB_NAME = "prices.db"
+DB_PATH = Path("prices.db")
 
-def get_conn():
-    return sqlite3.connect(DB_NAME)
+
+def get_connection():
+    return sqlite3.connect(DB_PATH)
+
 
 def init_db():
-    conn = get_conn()
+    conn = get_connection()
     cur = conn.cursor()
+
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS world_prices (
+        CREATE TABLE IF NOT EXISTS tc_prices (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            world TEXT,
-            buy INTEGER,
-            sell INTEGER,
-            timestamp TEXT
+            timestamp TEXT NOT NULL,
+            world TEXT NOT NULL,
+            buy INTEGER NOT NULL,
+            sell INTEGER NOT NULL
         )
     """)
+
     conn.commit()
     conn.close()
 
-def insert_world_price(world, buy, sell):
-    conn = get_conn()
+
+def insert_world_prices(prices: list[dict]):
+    conn = get_connection()
     cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO world_prices (world, buy, sell, timestamp) VALUES (?, ?, ?, ?)",
-        (world, buy, sell, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    )
+
+    for row in prices:
+        cur.execute(
+            """
+            INSERT INTO tc_prices (timestamp, world, buy, sell)
+            VALUES (?, ?, ?, ?)
+            """,
+            (
+                row["timestamp"],
+                row["world"],
+                row["buy"],
+                row["sell"]
+            )
+        )
+
     conn.commit()
     conn.close()
+
 
 def get_latest_world_prices():
-    conn = get_conn()
+    conn = get_connection()
     cur = conn.cursor()
+
     cur.execute("""
-        SELECT world, buy, sell
-        FROM world_prices
-        WHERE id IN (
-            SELECT MAX(id)
-            FROM world_prices
-            GROUP BY world
-        )
+        SELECT world, buy, sell, MAX(timestamp)
+        FROM tc_prices
+        GROUP BY world
     """)
+
     rows = cur.fetchall()
     conn.close()
 
     return [
-        {"world": r[0], "buy": r[1], "sell": r[2]}
+        {
+            "world": r[0],
+            "buy": r[1],
+            "sell": r[2],
+            "timestamp": r[3]
+        }
         for r in rows
     ]
