@@ -1,5 +1,6 @@
 from flask import Flask, render_template, jsonify
 from database import init_db, get_latest_world_prices, insert_world_prices
+from decision import make_decision
 
 
 
@@ -16,7 +17,16 @@ def dashboard():
 
 @app.route("/api/worlds")
 def api_worlds():
-    return jsonify(get_latest_world_prices())
+    data = get_latest_world_prices()
+
+    for world in data:
+        world["decision"] = make_decision(
+            buy_price=world["buy"],
+            sell_price=world["sell"]
+        )
+
+    return jsonify(data)
+
 
 
 # tymczasowy endpoint do testowych danych
