@@ -1,3 +1,4 @@
+from trend import calculate_trend
 import sqlite3
 from datetime import datetime
 
@@ -49,25 +50,34 @@ def insert_world_prices(rows):
 
 
 def get_latest_world_prices():
-    conn = get_connection()
-    cur = conn.cursor()
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
 
-    cur.execute("""
-        SELECT world, buy, sell, MAX(timestamp)
-        FROM world_prices
-        GROUP BY world
-        ORDER BY world
-    """)
+    result = []
 
-    rows = cur.fetchall()
+    worlds = ['Secura', 'Bona', 'Refugia']
+
+    for world in worlds:
+        c.execute("""
+            SELECT price
+            FROM world_prices
+            WHERE world = ?
+            ORDER BY timestamp DESC
+            LIMIT 12
+        """, (world,))
+
+        rows = c.fetchall()
+        prices = [r[0] for r in rows]
+
+        trend = calculate_trend(prices)
+
+        latest_price = prices[0] if prices else None
+
+        result.append({
+            "world": world,
+            "price": latest_price,
+            "trend": trend
+        })
+
     conn.close()
-
-    return [
-        {
-            "world": r[0],
-            "buy": r[1],
-            "sell": r[2],
-            "timestamp": r[3],
-        }
-        for r in rows
-    ]
+    return result
