@@ -1,11 +1,11 @@
 import sqlite3
-from pathlib import Path
+from datetime import datetime
 
-DB_PATH = Path("prices.db")
+DB_PATH = "prices.db"
 
 
 def get_connection():
-    return sqlite3.connect(DB_PATH)
+    return sqlite3.connect(DB_PATH, check_same_thread=False)
 
 
 def init_db():
@@ -13,12 +13,12 @@ def init_db():
     cur = conn.cursor()
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS tc_prices (
+        CREATE TABLE IF NOT EXISTS world_prices (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp TEXT NOT NULL,
             world TEXT NOT NULL,
-            buy INTEGER NOT NULL,
-            sell INTEGER NOT NULL
+            buy INTEGER,
+            sell INTEGER,
+            timestamp TEXT NOT NULL
         )
     """)
 
@@ -26,21 +26,21 @@ def init_db():
     conn.close()
 
 
-def insert_world_prices(prices: list[dict]):
+def insert_world_prices(rows):
     conn = get_connection()
     cur = conn.cursor()
 
-    for row in prices:
+    for row in rows:
         cur.execute(
             """
-            INSERT INTO tc_prices (timestamp, world, buy, sell)
+            INSERT INTO world_prices (world, buy, sell, timestamp)
             VALUES (?, ?, ?, ?)
             """,
             (
-                row["timestamp"],
                 row["world"],
                 row["buy"],
-                row["sell"]
+                row["sell"],
+                datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
             )
         )
 
@@ -54,8 +54,9 @@ def get_latest_world_prices():
 
     cur.execute("""
         SELECT world, buy, sell, MAX(timestamp)
-        FROM tc_prices
+        FROM world_prices
         GROUP BY world
+        ORDER BY world
     """)
 
     rows = cur.fetchall()
@@ -66,7 +67,7 @@ def get_latest_world_prices():
             "world": r[0],
             "buy": r[1],
             "sell": r[2],
-            "timestamp": r[3]
+            "timestamp": r[3],
         }
         for r in rows
     ]
