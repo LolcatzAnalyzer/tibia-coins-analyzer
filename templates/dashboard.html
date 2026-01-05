@@ -5,10 +5,9 @@
     <title>Tibia Coins – Worlds</title>
     <style>
         body {
-            background: #0f172a;
-            color: white;
+            background: #0e0e0e;
+            color: #f0f0f0;
             font-family: Arial, sans-serif;
-            padding: 20px;
         }
         table {
             border-collapse: collapse;
@@ -16,26 +15,30 @@
             width: 100%;
         }
         th, td {
-            border: 1px solid #334155;
-            padding: 10px;
+            border: 1px solid #333;
+            padding: 8px;
             text-align: center;
         }
         th {
-            background: #1e293b;
+            background: #1f1f1f;
         }
+        .BUY { color: #00ff99; font-weight: bold; }
+        .SELL { color: #ff5555; font-weight: bold; }
+        .WAIT { color: #ffaa00; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <h1>📊 Tibia Coins – Worlds</h1>
 
-<table id="prices-table">
+<table id="worlds-table">
     <thead>
         <tr>
             <th>World</th>
             <th>Buy</th>
             <th>Sell</th>
-            <th>Timestamp</th>
+            <th>Decision</th>
+            <th>Updated</th>
         </tr>
     </thead>
     <tbody></tbody>
@@ -45,23 +48,19 @@
 fetch("/api/worlds")
     .then(res => res.json())
     .then(data => {
-        const tbody = document.querySelector("#prices-table tbody");
+        const tbody = document.querySelector("#worlds-table tbody");
         tbody.innerHTML = "";
 
-        if (data.length === 0) {
-            tbody.innerHTML = "<tr><td colspan='4'>Brak danych</td></tr>";
-            return;
-        }
-
-        data.forEach(row => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${row.world}</td>
-                    <td>${row.buy}</td>
-                    <td>${row.sell}</td>
-                    <td>${row.timestamp}</td>
-                </tr>
+        data.forEach(w => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${w.world}</td>
+                <td>${w.buy}</td>
+                <td>${w.sell}</td>
+                <td class="${w.decision}">${w.decision}</td>
+                <td>${w.timestamp}</td>
             `;
+            tbody.appendChild(row);
         });
     });
 </script>
