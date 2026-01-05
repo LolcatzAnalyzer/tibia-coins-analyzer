@@ -2,87 +2,64 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Tibia Coins Analyzer</title>
+    <title>Tibia Coins Dashboard</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #0f172a;
-            color: #e5e7eb;
+            background: #111;
+            color: #eee;
             padding: 20px;
         }
-
         h1 {
-            color: #38bdf8;
-            margin-bottom: 20px;
+            text-align: center;
         }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 16px;
-            max-width: 900px;
-        }
-
-        .card {
-            background: #020617;
-            padding: 16px;
-            border-radius: 10px;
-            border: 1px solid #1e293b;
-        }
-
-        .world {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #7dd3fc;
-        }
-
-        .row {
+        .worlds {
             display: flex;
-            justify-content: space-between;
-            margin: 6px 0;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
         }
-
+        .card {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            width: 200px;
+            text-align: center;
+            box-shadow: 0 0 10px #000;
+        }
         .buy {
-            color: #4ade80;
+            color: #4caf50;
+            font-size: 20px;
         }
-
         .sell {
-            color: #f87171;
+            color: #f44336;
+            font-size: 20px;
         }
     </style>
 </head>
 <body>
 
-<h1>📊 Tibia Coins — Buy / Sell</h1>
+<h1>📊 Tibia Coins – Worlds</h1>
 
-<div class="grid" id="worlds"></div>
+<div class="worlds" id="worlds"></div>
 
 <script>
-    // MOCK DATA — za chwilę podmienimy na backend
-    const data = [
-        { world: "Secura", buy: 35200, sell: 35800 },
-        { world: "Bona", buy: 34900, sell: 35400 },
-        { world: "Refugia", buy: 34600, sell: 35100 }
-    ];
+fetch("/api/worlds")
+    .then(res => res.json())
+    .then(data => {
+        const container = document.getElementById("worlds");
+        container.innerHTML = "";
 
-    const container = document.getElementById("worlds");
-
-    data.forEach(w => {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.innerHTML = `
-            <div class="world">${w.world}</div>
-            <div class="row buy">
-                <span>BUY</span>
-                <span>${w.buy.toLocaleString()} TC</span>
-            </div>
-            <div class="row sell">
-                <span>SELL</span>
-                <span>${w.sell.toLocaleString()} TC</span>
-            </div>
-        `;
-        container.appendChild(card);
+        data.forEach(w => {
+            const div = document.createElement("div");
+            div.className = "card";
+            div.innerHTML = `
+                <h2>${w.world}</h2>
+                <div class="buy">BUY: ${w.buy}</div>
+                <div class="sell">SELL: ${w.sell}</div>
+            `;
+            container.appendChild(div);
+        });
     });
 </script>
 
