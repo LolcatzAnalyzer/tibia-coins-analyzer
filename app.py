@@ -2,6 +2,7 @@ from flask import Flask, render_template, jsonify
 from database import init_db, get_latest_world_prices, insert_world_prices
 
 
+
 app = Flask(__name__)
 
 # inicjalizacja bazy przy starcie
