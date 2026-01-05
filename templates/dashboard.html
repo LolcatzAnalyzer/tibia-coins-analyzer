@@ -6,63 +6,94 @@
     <style>
         body {
             background: #0e0e0e;
-            color: #f0f0f0;
+            color: #eee;
             font-family: Arial, sans-serif;
+            padding: 20px;
         }
-        table {
-            border-collapse: collapse;
-            margin-top: 20px;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid #333;
-            padding: 8px;
+
+        h1 {
             text-align: center;
         }
-        th {
-            background: #1f1f1f;
+
+        table {
+            width: 60%;
+            margin: auto;
+            border-collapse: collapse;
         }
-        .BUY { color: #00ff99; font-weight: bold; }
-        .SELL { color: #ff5555; font-weight: bold; }
-        .WAIT { color: #ffaa00; font-weight: bold; }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #333;
+            text-align: center;
+        }
+
+        th {
+            background: #1c1c1c;
+        }
+
+        .UP { color: #00ff88; }
+        .DOWN { color: #ff5555; }
+        .FLAT { color: #ffaa00; }
+
+        .BUY {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        .SELL {
+            color: #ff5555;
+            font-weight: bold;
+        }
+
+        .WAIT {
+            color: #aaa;
+        }
     </style>
 </head>
 <body>
 
 <h1>📊 Tibia Coins – Worlds</h1>
 
-<table id="worlds-table">
+<table>
     <thead>
         <tr>
             <th>World</th>
-            <th>Buy</th>
-            <th>Sell</th>
+            <th>Price</th>
+            <th>Trend</th>
             <th>Decision</th>
-            <th>Updated</th>
         </tr>
     </thead>
-    <tbody></tbody>
+    <tbody id="table-body">
+    </tbody>
 </table>
 
 <script>
-fetch("/api/worlds")
-    .then(res => res.json())
-    .then(data => {
-        const tbody = document.querySelector("#worlds-table tbody");
-        tbody.innerHTML = "";
+async function loadData() {
+    const res = await fetch("/api/worlds");
+    const data = await res.json();
 
-        data.forEach(w => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${w.world}</td>
-                <td>${w.buy}</td>
-                <td>${w.sell}</td>
-                <td class="${w.decision}">${w.decision}</td>
-                <td>${w.timestamp}</td>
-            `;
-            tbody.appendChild(row);
-        });
+    const tbody = document.getElementById("table-body");
+    tbody.innerHTML = "";
+
+    data.forEach(row => {
+        let decision = "WAIT";
+
+        if (row.trend === "UP") decision = "BUY";
+        if (row.trend === "DOWN") decision = "SELL";
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${row.world}</td>
+                <td>${row.price ?? "-"}</td>
+                <td class="${row.trend}">${row.trend}</td>
+                <td class="${decision}">${decision}</td>
+            </tr>
+        `;
     });
+}
+
+loadData();
+setInterval(loadData, 30000);
 </script>
 
 </body>
