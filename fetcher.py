@@ -3,6 +3,10 @@ import requests
 WORLDS = ["Secura", "Bona", "Refugia"]
 MARKET_API = "https://api.tibiadata.com/v4/market/tibia-coins/{world}"
 
+HEADERS = {
+    "User-Agent": "TibiaCoinsAnalyzer/1.0 (+https://tibia-coins-analyzer.onrender.com)"
+}
+
 
 def fetch_world_prices():
     rows = []
@@ -10,7 +14,7 @@ def fetch_world_prices():
     for world in WORLDS:
         try:
             url = MARKET_API.format(world=world)
-            resp = requests.get(url, timeout=10)
+            resp = requests.get(url, headers=HEADERS, timeout=10)
             data = resp.json()
 
             stats = data.get("market", {}).get("statistics", {})
