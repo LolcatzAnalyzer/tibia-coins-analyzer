@@ -18,7 +18,8 @@ def fetch_world_prices():
             buy = stats.get("highest_buy_offer")
             sell = stats.get("lowest_sell_offer")
 
-            if buy and sell:
+            # KLUCZOWA ZMIANA
+            if buy is not None and sell is not None:
                 rows.append({
                     "world": world,
                     "buy": int(buy),
