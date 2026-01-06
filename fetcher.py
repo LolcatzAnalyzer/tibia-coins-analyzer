@@ -1,25 +1,40 @@
 import requests
+from bs4 import BeautifulSoup
 
 WORLDS = ["Secura", "Bona", "Refugia"]
 
-def fetch_world_tc_prices():
-    results = []
+URL = "https://www.tibia.com/charactertrade/?subtopic=currenttrades"
 
-    for world in WORLDS:
-        url = f"https://api.tibiadata.com/v4/world/{world}"
-        r = requests.get(url, timeout=10)
-        data = r.json()
 
-        offers = data["world"]["market"]["offers"]
-        tc_offers = [o for o in offers if o["item"] == "Tibia Coin"]
+def fetch_world_prices():
+    response = requests.get(URL, timeout=15)
+    soup = BeautifulSoup(response.text, "html.parser")
 
-        buy = max((o["price"] for o in tc_offers if o["type"] == "buy"), default=None)
-        sell = min((o["price"] for o in tc_offers if o["type"] == "sell"), default=None)
+    rows = []
 
-        results.append({
+    table = soup.find("table", class_="TableContent")
+    if not table:
+        return rows
+
+    for tr in table.find_all("tr"):
+        tds = tr.find_all("td")
+        if len(tds) < 5:
+            continue
+
+        world = tds[1].text.strip()
+        if world not in WORLDS:
+            continue
+
+        try:
+            buy = int(tds[3].text.replace(",", "").strip())
+            sell = int(tds[4].text.replace(",", "").strip())
+        except ValueError:
+            continue
+
+        rows.append({
             "world": world,
             "buy": buy,
             "sell": sell
         })
 
-    return results
+    return rows
