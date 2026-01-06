@@ -15,15 +15,12 @@ def fetch_world_prices():
 
             market = data.get("market", {}).get("data", {})
 
-            buy_list = market.get("buy", [])
-            sell_list = market.get("sell", [])
+            buy = market.get("buy", {}).get("highest")
+            sell = market.get("sell", {}).get("lowest")
 
-            if not buy_list or not sell_list:
-                print(f"No market data for {world}")
+            if buy is None or sell is None:
+                print(f"[WARN] No prices for {world}: {market}")
                 continue
-
-            buy = buy_list[0]["price"]
-            sell = sell_list[0]["price"]
 
             rows.append({
                 "world": world,
@@ -34,6 +31,6 @@ def fetch_world_prices():
             print(f"[FETCH] {world}: buy={buy}, sell={sell}")
 
         except Exception as e:
-            print(f"Fetcher error for {world}: {e}")
+            print(f"[ERROR] Fetcher error for {world}: {e}")
 
     return rows
