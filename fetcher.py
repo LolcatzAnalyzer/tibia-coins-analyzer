@@ -1,40 +1,33 @@
 import requests
-from bs4 import BeautifulSoup
 
 WORLDS = ["Secura", "Bona", "Refugia"]
 
-URL = "https://www.tibia.com/charactertrade/?subtopic=currenttrades"
+TIBIA_API = "https://api.tibiadata.com/v4/world/{world}"
 
 
 def fetch_world_prices():
-    response = requests.get(URL, timeout=15)
-    soup = BeautifulSoup(response.text, "html.parser")
-
     rows = []
 
-    table = soup.find("table", class_="TableContent")
-    if not table:
-        return rows
-
-    for tr in table.find_all("tr"):
-        tds = tr.find_all("td")
-        if len(tds) < 5:
-            continue
-
-        world = tds[1].text.strip()
-        if world not in WORLDS:
-            continue
-
+    for world in WORLDS:
         try:
-            buy = int(tds[3].text.replace(",", "").strip())
-            sell = int(tds[4].text.replace(",", "").strip())
-        except ValueError:
-            continue
+            url = TIBIA_API.format(world=world)
+            resp = requests.get(url, timeout=10)
+            data = resp.json()
 
-        rows.append({
-            "world": world,
-            "buy": buy,
-            "sell": sell
-        })
+            world_data = data.get("world", {})
+            market = world_data.get("market", {})
+
+            buy = market.get("buy")
+            sell = market.get("sell")
+
+            if buy and sell:
+                rows.append({
+                    "world": world,
+                    "buy": buy,
+                    "sell": sell
+                })
+
+        except Exception as e:
+            print(f"Fetcher error for {world}:", e)
 
     return rows
