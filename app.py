@@ -1,8 +1,6 @@
 from flask import Flask, render_template, jsonify
-from database import init_db, get_latest_world_prices, insert_world_prices
-from decision import make_decision
-
-
+from fetcher import fetch_world_prices
+from database import init_db, insert_world_prices, get_latest_world_prices
 
 app = Flask(__name__)
 
@@ -18,24 +16,15 @@ def dashboard():
 @app.route("/api/worlds")
 def api_worlds():
     data = get_latest_world_prices()
-
-    for world in data:
-        world["decision"] = make_decision(
-            buy_price=world["buy"],
-            sell_price=world["sell"]
-        )
-
     return jsonify(data)
 
 
-
-# tymczasowy endpoint do testowych danych
-@app.route("/api/mock")
-def mock_data():
-    insert_world_price("Secura", 35200, 35800)
-    insert_world_price("Bona", 34900, 35400)
-    insert_world_price("Refugia", 34600, 35100)
-    return {"status": "mock inserted"}
+@app.route("/api/fetch")
+def api_fetch():
+    rows = fetch_world_prices()
+    if rows:
+        insert_world_prices(rows)
+    return {"status": "ok", "rows": len(rows)}
 
 
 if __name__ == "__main__":
