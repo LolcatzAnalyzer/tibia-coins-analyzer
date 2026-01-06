@@ -2,7 +2,7 @@ import requests
 
 WORLDS = ["Secura", "Bona", "Refugia"]
 
-TIBIA_API = "https://api.tibiadata.com/v4/world/{world}"
+MARKET_API = "https://api.tibiadata.com/v4/market/tibia-coins/{world}"
 
 
 def fetch_world_prices():
@@ -10,24 +10,23 @@ def fetch_world_prices():
 
     for world in WORLDS:
         try:
-            url = TIBIA_API.format(world=world)
+            url = MARKET_API.format(world=world)
             resp = requests.get(url, timeout=10)
             data = resp.json()
 
-            world_data = data.get("world", {})
-            market = world_data.get("market", {})
+            coins = data.get("market", {}).get("tibia_coins", {})
 
-            buy = market.get("buy")
-            sell = market.get("sell")
+            buy = coins.get("highest_buy_offer")
+            sell = coins.get("lowest_sell_offer")
 
             if buy and sell:
                 rows.append({
                     "world": world,
-                    "buy": buy,
-                    "sell": sell
+                    "buy": int(buy),
+                    "sell": int(sell)
                 })
 
         except Exception as e:
-            print(f"Fetcher error for {world}:", e)
+            print(f"Fetcher error for {world}: {e}")
 
     return rows
