@@ -13,13 +13,13 @@ def fetch_world_prices():
             resp = requests.get(url, timeout=10)
             data = resp.json()
 
-            market = data.get("market", {}).get("data", {})
+            stats = data.get("market", {}).get("statistics", {})
 
-            buy = market.get("buy", {}).get("highest")
-            sell = market.get("sell", {}).get("lowest")
+            buy = stats.get("buy", {}).get("highest")
+            sell = stats.get("sell", {}).get("lowest")
 
             if buy is None or sell is None:
-                print(f"[WARN] No prices for {world}: {market}")
+                print(f"[WARN] No prices for {world}: {stats}")
                 continue
 
             rows.append({
