@@ -13,18 +13,25 @@ def fetch_world_prices():
             resp = requests.get(url, timeout=10)
             data = resp.json()
 
-            stats = data.get("market", {}).get("statistics", {})
+            market = data.get("market", {}).get("data", {})
 
-            buy = stats.get("highest_buy_offer")
-            sell = stats.get("lowest_sell_offer")
+            buy_list = market.get("buy", [])
+            sell_list = market.get("sell", [])
 
-            # KLUCZOWA ZMIANA
-            if buy is not None and sell is not None:
-                rows.append({
-                    "world": world,
-                    "buy": int(buy),
-                    "sell": int(sell)
-                })
+            if not buy_list or not sell_list:
+                print(f"No market data for {world}")
+                continue
+
+            buy = buy_list[0]["price"]
+            sell = sell_list[0]["price"]
+
+            rows.append({
+                "world": world,
+                "buy": int(buy),
+                "sell": int(sell)
+            })
+
+            print(f"[FETCH] {world}: buy={buy}, sell={sell}")
 
         except Exception as e:
             print(f"Fetcher error for {world}: {e}")
